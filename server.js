@@ -33,20 +33,54 @@ const connection = mysql.createConnection({
  });
 
  function menu() {
-    inquirer.prompt([{
-        type: 'list',
-        name: 'options',
-        message: 'How would you like to proceed',
-        Choices: [
-            'View all departments',
-            'View all roles',
-            'view all employees',
-            'add a department',
-            'add a role',
-            'add an employee',
-            'update an employee',
-            'exit',
-        ]
-    }
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'options',
+            message: 'How would you like to proceed',
+            choices: [
+                'View All Departments',
+                'View All Roles',
+                'View All Employees',
+                'Update Employee Role',
+                'Add Role',
+                'Add Employee',
+                'Add Department',
+                'Exit'
+            ]
+        }
     ])
- }
+    .then(answer => {
+        switch (answer.options) {
+            case 'View All Departments':
+                viewAllDepartments();
+                break;
+            case 'View All Roles':
+                viewAllRoles();
+                break;
+            case 'View All Employees':
+                viewAllEmployees();
+                break;
+            case 'Update Employee Role':
+                updateEmployeeRole();
+                break;
+            case 'Add Role':
+                addRole();
+                break;
+            case 'Add Employee':
+                addEmployee();
+                break;
+            case 'Add Department':
+                addDepartment();
+                break;
+            case 'Exit':
+                console.log('Goodbye!');
+                connection.end();
+                break;
+            default:
+                console.log('Invalid choice');
+                menu();
+        }
+    });
+}
+
