@@ -84,3 +84,41 @@ const connection = mysql.createConnection({
     });
 }
 
+function viewAllDepartments() {
+    connection.query('SELECT * FROM department', (err, results) => {
+        if (err) {
+            console.error('Error retrieving departments:', err);
+            menu();
+            return;
+        }
+        
+        console.table(results);
+        menu();
+    });
+}
+
+function viewAllRoles() {
+    connection.query('SELECT * FROM roles', (err, results) => {
+        if (err) {
+            console.error('Error retrieving roles:', err);
+            menu();
+            return;
+        }
+        
+        console.table(results);
+        menu();
+    });
+}
+
+function viewAllEmployees() {
+    connection.query('SELECT * FROM employee', (err, results) => {
+        if (err) {
+            console.error('Error retrieving employees:', err);
+            menu();
+            return;
+        }
+        
+        console.table(results);
+        menu();
+    });
+}
