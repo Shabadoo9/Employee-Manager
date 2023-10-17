@@ -111,14 +111,90 @@ function viewAllRoles() {
 }
 
 function viewAllEmployees() {
-    connection.query('SELECT * FROM employee', (err, results) => {
-        if (err) {
-            console.error('Error retrieving employees:', err);
-            menu();
-            return;
-        }
-        
-        console.table(results);
+    const query = `
+      SELECT
+        e.id AS Employee_ID,
+        e.first_name AS First_Name,
+        e.last_name AS Last_Name,
+        r.title AS Role,
+        r.salary AS Salary,
+        CONCAT(m.first_name, ' ', m.last_name) AS Manager_Name
+      FROM employee e
+      LEFT JOIN roles r ON e.role_id = r.id
+      LEFT JOIN employee m ON e.manager_id = m.id;
+    `;
+  
+    connection.query(query, (err, results) => {
+      if (err) {
+        console.error('Error retrieving employees:', err);
         menu();
+        return;
+      }
+  
+      console.table(results);
+      menu();
+    });
+  }
+
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'departmentName', // Use the correct column name here
+            message: 'Enter the name of the new department:',
+            validate: departmentName => departmentName ? true : "Name cannot be empty."
+        }
+    ]).then(answer => {
+        connection.query('INSERT INTO department SET ?', { department_name: answer.departmentName }, (err) => { // Use the correct column name here
+            if (err) throw err;
+            console.log('Department added successfully.');
+            // Return to main menu or exit
+            menu();
+        });
     });
 }
+
+function addEmployee() {
+    connection.query('SELECT id, title FROM roles', (err, res) => {
+      if (err) throw err;
+  
+      const roles = res.map(role => ({ name: role.title, value: role.id }));
+  
+      inquirer
+        .prompt([
+          {
+            name: 'first_name',
+            type: 'input',
+            message: 'Enter the first name of the new employee:',
+          },
+          {
+            name: 'last_name',
+            type: 'input',
+            message: 'Enter the last name of the new employee:',
+          },
+          {
+            name: 'role',
+            type: 'list', // Use 'list' instead of 'rawlist' for a cleaner UI
+            message: 'Select the role of the new employee:',
+            choices: roles,
+          },
+          {
+            name: 'manager_id',
+            type: 'input',
+            message: 'Enter the appropriate manager ID number for the new employee:',
+          },
+        ])
+        .then((answers) => {
+          connection.query('INSERT INTO employee SET ?', {
+            first_name: answers.first_name,
+            last_name: answers.last_name,
+            role_id: answers.role,
+            manager_id: answers.manager_id,
+          }, (err, res) => {
+            if (err) throw err;
+            console.log(`\n ${answers.first_name} ${answers.last_name} successfully added to the database! \n`);
+            employees(); // You should define the employees() function to display the updated list of employees.
+          });
+        });
+    });
+  }
