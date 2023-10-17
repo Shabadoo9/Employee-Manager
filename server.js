@@ -174,7 +174,7 @@ function addEmployee() {
           },
           {
             name: 'role',
-            type: 'list', // Use 'list' instead of 'rawlist' for a cleaner UI
+            type: 'list',
             message: 'Select the role of the new employee:',
             choices: roles,
           },
@@ -194,6 +194,60 @@ function addEmployee() {
             if (err) throw err;
             console.log(`\n ${answers.first_name} ${answers.last_name} successfully added to the database! \n`);
             employees(); // You should define the employees() function to display the updated list of employees.
+          });
+        });
+    });
+  }
+
+  function addRole() {
+    // Query to retrieve department names and their IDs
+    const departmentQuery = 'SELECT id, department_name FROM department';
+  
+    connection.query(departmentQuery, (err, departmentResults) => {
+      if (err) {
+        console.error('Error retrieving departments:', err);
+        menu();
+        return;
+      }
+  
+      const departmentChoices = departmentResults.map(department => ({
+        name: department.department_name,
+        value: department.id,
+      }));
+  
+      inquirer
+        .prompt([
+          {
+            name: 'title',
+            type: 'input',
+            message: 'Enter the title of the new role:',
+          },
+          {
+            name: 'salary',
+            type: 'input',
+            message: 'Enter the salary for the new role:',
+          },
+          {
+            name: 'department_id',
+            type: 'list',
+            message: 'Select the department for the new role:',
+            choices: departmentChoices,
+          },
+        ])
+        .then((answers) => {
+          const newRole = {
+            title: answers.title,
+            salary: parseFloat(answers.salary),
+            department_id: answers.department_id,
+          };
+  
+          connection.query('INSERT INTO roles SET ?', newRole, (err, res) => {
+            if (err) {
+              console.error('Error adding the new role:', err);
+            } else {
+              console.log(`\n ${answers.title} role successfully added to the database! \n`);
+            }
+            menu(); // Assuming you want to return to the menu after adding the role.
           });
         });
     });
