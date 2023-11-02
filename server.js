@@ -193,7 +193,7 @@ function addEmployee() {
                 }, (err, res) => {
                     if (err) throw err;
                     console.log(`\n ${answers.first_name} ${answers.last_name} successfully added to the database! \n`);
-                    employees(); // You should define the employees() function to display the updated list of employees.
+                    viewAllEmployees()
                 });
             });
     });
